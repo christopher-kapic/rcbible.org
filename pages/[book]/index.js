@@ -15,7 +15,7 @@ export default function Index({bookInfo: book}) {
 
       {book.Chapters.map(chapter => {
         return (
-          <div>
+          <div key={chapter.ChapterNumber}>
             <Link href={`/${book.Title.toLowerCase().replace(" ", "_")}/${chapter.ChapterNumber}`}><a>{chapter.ChapterNumber}: {chapter.Summary}</a></Link>
           </div>
         )

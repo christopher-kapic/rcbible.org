@@ -16,7 +16,7 @@ export default function Index({book, chapter}) {
       
       {chapter.Verses.map(verse => {
         return(
-          <div>
+          <div key={verse.VerseNumber}>
             {verse.Text}
           </div>
         )

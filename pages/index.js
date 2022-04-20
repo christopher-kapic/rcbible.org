@@ -14,7 +14,7 @@ export default function Index({books}) {
 
       {
         books.map(book => {
-          return (<div><Link href={`/${book.toLowerCase().replace(" ", "_")}`}><a>{book}</a></Link></div>)
+          return (<div key={book.BookNumber}><Link href={`/${book.toLowerCase().replace(" ", "_")}`}><a>{book}</a></Link></div>)
         })
       }
 

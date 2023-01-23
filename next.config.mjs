@@ -6,10 +6,15 @@
 !process.env.SKIP_ENV_VALIDATION && (await import("./src/env/server.mjs"));
 
 import withPWA from 'next-pwa'
-// const withPWA = require('next-pwa')
 
-/** @type {import("next").NextConfig} */
-const config = {
+// /** @type {import("next").NextConfig} */
+const config = withPWA({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+  // runtimeCaching: [] // something to implement in the future for offline mode.
+})({
   reactStrictMode: true,
   /* If trying out the experimental appDir, comment the i18n config out
    * @see https://github.com/vercel/next.js/issues/41980 */
@@ -17,16 +22,6 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
-};
-export default withPWA({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development'
-})({
-  reactStrictMode: true,
-  i18n: {
-    locales: ["en"],
-    defaultLocale: "en"
-  }
 });
+
+export default config;

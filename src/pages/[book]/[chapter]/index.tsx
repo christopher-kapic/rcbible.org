@@ -4,6 +4,7 @@ import books from "../../../utils/douay-rheims-json/books.json";
 import verses from "../../../utils/douay-rheims-json/verses.json";
 import { AudioContext } from "../../../components/AudioPlayer";
 import { useContext, useEffect } from "react";
+import { env } from "../../../env/client.mjs";
 
 export const getStaticPaths: GetStaticPaths = () => {
   const paths: { params: { book: string; chapter: string } }[] = [];
@@ -43,7 +44,7 @@ export const getStaticProps: GetStaticProps = (context) => {
   return { props: { book, chapter } };
 };
 
-const Book: NextPage<{
+const Chapter: NextPage<{
   book: {
     booknumber: number;
     shortname: string;
@@ -79,7 +80,7 @@ const Book: NextPage<{
       <button
       onClick={() => {
         const audioFiles: string[] = book.chapters.map(chapter => {
-          return `${process.env.NEXT_PUBLIC_BASE_AUDIO_URL || ""}/${book.shortname.replace(" ", "_")}.${chapter.chapternumber}.mp3`
+          return `${env.NEXT_PUBLIC_BASE_AUDIO_URL}/${book.shortname.replace(" ", "_")}.${chapter.chapternumber}.mp3`
         })
         console.log(audioFiles)
         setAudioContext({currentTrack: chapter[0]!.chapternumber - 1, tracks: audioFiles})
@@ -94,4 +95,4 @@ const Book: NextPage<{
   );
 };
 
-export default Book;
+export default Chapter;

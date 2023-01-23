@@ -36,7 +36,7 @@ export const getStaticProps: GetStaticProps = (context) => {
   const chapter: {versenumber: number, text: string, booknumber: number, chapternumber: number, notes?: string[]}[] = [];
 
   verses.forEach(verse => {
-    if (verse.booknumber === book.booknumber && Number(params.chapter) === verse.chapternumber) {
+    if (verse.booknumber === book?.booknumber && Number(params?.chapter) === verse.chapternumber) {
       chapter.push(verse)
     }
   })

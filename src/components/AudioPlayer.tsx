@@ -1,11 +1,9 @@
 import {
   useState,
   useRef,
-  BaseSyntheticEvent,
+  type SyntheticEvent,
   useContext,
   createContext,
-  type Dispatch,
-  type SetStateAction,
   useEffect,
 } from "react";
 import {
@@ -16,7 +14,6 @@ import {
   PlayIcon,
   PauseIcon,
 } from "@heroicons/react/24/outline";
-import { number } from "zod";
 
 const skipTime = 15;
 
@@ -28,49 +25,50 @@ const AudioPlayer = () => {
   const [audioContext, setAudioContext] = useContext(AudioContext);
   const audioRef = useRef<HTMLAudioElement>(null);
   const seekRef = useRef<HTMLInputElement>(null);
-  const [duration, setDuration] = useState<number>(0);
-  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speedIdx, setSpeedIdx] = useState<number>(2); // todo: save speed for user;
   const speeds = [0.5, 0.75, 1, 1.25, 1.5, 1.6, 1.7, 1.8, 1.9, 2];
 
   useEffect(() => {
     if (audioRef && audioRef.current) {
-      audioRef.current.load()
-      audioRef.current.play().catch(e => {console.error(e)})
-      setPlaying(true)
+      audioRef.current.load();
+      audioRef.current.play().catch((e) => {
+        console.error(e);
+      });
+      setPlaying(true);
     }
-  }, [audioContext])
+  }, [audioContext]);
 
   return (
     <>
       <audio
         ref={audioRef}
-        onDurationChange={(e: BaseSyntheticEvent) => {
-          const _duration: number = e.target.duration;
-          setDuration(_duration);
+        onDurationChange={(e: SyntheticEvent<HTMLAudioElement, Event>) => {
+          const target = e.target as HTMLAudioElement;
+          setDuration(target.duration);
         }}
-        onTimeUpdate={(e: BaseSyntheticEvent) => {
+        onTimeUpdate={(e) => {
+          const target = e.target as HTMLAudioElement;
           if (seekRef && seekRef.current) {
-            seekRef.current.value = e.target.currentTime;
+            seekRef.current.value = target.currentTime.toString();
           }
-          setCurrentTime(e.target.currentTime);
+          setCurrentTime(target.currentTime);
         }}
-        onPause={(e: BaseSyntheticEvent) => {
-          setDuration(e.target.duration);
+        onPlay={(e) => {
+          const target = e.target as HTMLAudioElement;
+          setDuration(target.duration);
         }}
-        onPlay={(e: BaseSyntheticEvent) => {
-          setDuration(e.target.duration);
+        onEnded={(e) => {
+          if (audioContext.currentTrack < audioContext.tracks.length - 1) {
+            const currentTrack = audioContext.currentTrack;
+            setAudioContext({...audioContext, currentTrack: currentTrack + 1})
+          }
         }}
       >
         <source
-          src={
-            audioContext &&
-            audioContext.tracks &&
-            audioContext.tracks.length > 0
-              ? audioContext!.tracks![audioContext!.currentTrack]
-              : ""
-          }
+          src={audioContext.tracks[audioContext.currentTrack]}
           type="audio/mpeg"
         />
         Your browser does not support the audio element.
@@ -90,7 +88,7 @@ const AudioPlayer = () => {
             audioContext.tracks.length > 0
               ? 0
               : -72,
-          transition: "bottom .25s ease-in-out"
+          transition: "bottom .25s ease-in-out",
         }}
       >
         <div className={`flex h-8 w-full items-center justify-center pt-2`}>
@@ -104,9 +102,10 @@ const AudioPlayer = () => {
             max={duration}
             ref={seekRef}
             className="h-0.5 cursor-pointer appearance-none rounded bg-white"
-            onChange={(e: BaseSyntheticEvent) => {
+            onChange={(e) => {
+              const target = e.target as HTMLInputElement;
               if (audioRef && audioRef.current) {
-                audioRef.current.currentTime = e.target.value;
+                audioRef.current.currentTime = Number(target.value);
               }
             }}
           />
@@ -123,24 +122,28 @@ const AudioPlayer = () => {
         `}
         >
           <button
-            // disabled={audioContext!.tracks!.length === 0}
             className={`${buttonStyles}`}
             onClick={() => {
               if (
                 audioRef &&
                 audioRef.current &&
-                audioRef.current.currentTime! < 3 &&
-                audioContext!.currentTrack > 0
+                audioRef.current.currentTime < 3 &&
+                audioContext.currentTrack > 0
               ) {
-                setAudioContext!({
-                  ...audioContext!,
+                setAudioContext({
+                  ...audioContext,
                   currentTrack:
-                    (audioContext!.currentTrack - 1) %
-                    audioContext!.tracks!.length,
+                    (audioContext.currentTrack - 1) %
+                    audioContext.tracks.length,
                 });
-              } else {
-                audioRef.current!.currentTime = 0;
-                seekRef.current!.value = "0";
+              } else if (
+                audioRef &&
+                audioRef.current &&
+                seekRef &&
+                seekRef.current
+              ) {
+                audioRef.current.currentTime = 0;
+                seekRef.current.value = "0";
               }
             }}
           >
@@ -168,7 +171,7 @@ const AudioPlayer = () => {
                 if (playing) {
                   audioRef.current.pause();
                 } else {
-                  audioRef.current.play().catch(e => console.error(e));
+                  audioRef.current.play().catch((e) => console.error(e));
                 }
               }
               setPlaying(!playing);
@@ -195,19 +198,18 @@ const AudioPlayer = () => {
             className={`${buttonStyles}`}
             onClick={() => {
               if (
-                audioContext &&
-                audioContext.currentTrack < audioContext.tracks!.length - 1
+                audioContext.currentTrack < audioContext.tracks.length - 1
               ) {
-                setAudioContext!({
-                  ...audioContext!,
+                setAudioContext({
+                  ...audioContext,
                   currentTrack:
-                    (audioContext!.currentTrack + 1) %
-                    audioContext!.tracks!.length,
+                    (audioContext.currentTrack + 1) %
+                    audioContext.tracks.length,
                 });
               } else {
-                setAudioContext!({
+                setAudioContext({
                   currentTrack: 0,
-                  tracks: []
+                  tracks: [],
                 });
               }
             }}
@@ -232,47 +234,37 @@ const AudioPlayer = () => {
   );
 };
 
-// const temp: Dispatch<
-//   SetStateAction<{
-//     currentTrack: number;
-//     tracks?: string[]; // Should be | undefined after testing
-//   }>
-// > = useState<{ currentTrack: number; tracks?: string[] }>({
-//   currentTrack: 0,
-//   tracks: [],
-// })[1];
+type AudioState = {
+  currentTrack: number;
+  tracks: string[];
+};
 
+type AudioContext = [
+  AudioState,
+  ({ currentTrack, tracks }: AudioState) => void
+];
 
-
-export const AudioContext = createContext<
-  [
-    {
-      currentTrack: number;
-      tracks?: string[];
-    },
-    Dispatch<
-      SetStateAction<{
-        currentTrack: number;
-        tracks?: string[]; // Should be | undefined after testing
-      }>
-    >?
-  ]
->([{ currentTrack: 0 }, undefined]);
+export const AudioContext = createContext<AudioContext>([
+  { currentTrack: 0, tracks: [] },
+  (input: AudioState) => {
+    if (!input) { // This enforces that input is used for linting purposes
+      return
+    }
+    return;
+  },
+]);
 
 export const AudioContextProvider = ({
   children,
 }: {
   children: JSX.Element | JSX.Element[];
 }) => {
-  const [audioContext, setAudioContext] = useState<{
-    currentTrack: number;
-    tracks?: string[];
-  }>({
+  const [audioContext, setAudioContext] = useState<AudioState>({
     currentTrack: 0,
     tracks: [],
   });
   return (
-    <AudioContext.Provider value={[audioContext, setAudioContext!]}>
+    <AudioContext.Provider value={[audioContext, setAudioContext]}>
       {children}
     </AudioContext.Provider>
   );

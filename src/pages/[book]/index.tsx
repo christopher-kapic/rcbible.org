@@ -1,4 +1,4 @@
-import { GetStaticPaths, GetStaticProps, type NextPage } from "next";
+import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import books from "../../utils/douay-rheims-json/books.json";
 import Link from "next/link";
 

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import books from "../../../utils/douay-rheims-json/books.json";
 import verses from "../../../utils/douay-rheims-json/verses.json";
 import { AudioContext } from "../../../components/AudioPlayer";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { env } from "../../../env/client.mjs";
 
 export const getStaticPaths: GetStaticPaths = () => {
@@ -66,10 +66,12 @@ const Chapter: NextPage<{
   }[];
 }> = ({ book, chapter }) => {
   const router = useRouter();
+  const renders = useRef(0);
   const [audioContext, setAudioContext] = useContext(AudioContext)
   useEffect(() => {
-    if (audioContext.currentTrack !== chapter[0]!.chapternumber - 1) {
+    if (audioContext.currentTrack !== chapter[0]!.chapternumber - 1 && renders.current !== 0) {
       router.push(`/${book.shortname.toLowerCase().replace(" ", "_")}/${audioContext.currentTrack + 1}`).catch(e => {console.error(e)})
+      renders.current++;
     }
   }, [audioContext])
   return (

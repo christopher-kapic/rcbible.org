@@ -1,7 +1,6 @@
 import {
   useState,
   useRef,
-  type SyntheticEvent,
   useContext,
   createContext,
   useEffect,
@@ -45,7 +44,7 @@ const AudioPlayer = () => {
     <>
       <audio
         ref={audioRef}
-        onDurationChange={(e: SyntheticEvent<HTMLAudioElement, Event>) => {
+        onDurationChange={(e) => {
           const target = e.target as HTMLAudioElement;
           setDuration(target.duration);
         }}
@@ -60,7 +59,7 @@ const AudioPlayer = () => {
           const target = e.target as HTMLAudioElement;
           setDuration(target.duration);
         }}
-        onEnded={(e) => {
+        onEnded={() => {
           if (audioContext.currentTrack < audioContext.tracks.length - 1) {
             const currentTrack = audioContext.currentTrack;
             setAudioContext({...audioContext, currentTrack: currentTrack + 1})

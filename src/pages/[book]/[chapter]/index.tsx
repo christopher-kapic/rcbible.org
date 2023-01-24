@@ -1,10 +1,19 @@
 import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
-import { useRouter } from "next/router";
 import books from "../../../utils/douay-rheims-json/books.json";
-import verses from "../../../utils/douay-rheims-json/verses.json";
+import versesJson from "../../../utils/douay-rheims-json/verses.json";
 import { AudioContext } from "../../../components/AudioPlayer";
 import { useContext } from "react";
 import { env } from "../../../env/client.mjs";
+
+// JSON is too big to infer the type
+type Verse = {
+  versenumber: number;
+  text: string;
+  notes?: string[];
+  booknumber: number;
+  chapternumber: number;
+};
+const verses = versesJson as Verse[];
 
 export const getStaticPaths: GetStaticPaths = () => {
   const paths: { params: { book: string; chapter: string } }[] = [];
@@ -33,15 +42,24 @@ export const getStaticProps: GetStaticProps = (context) => {
     return _book.shortname.replace(" ", "_").toLowerCase() === params?.book;
   })[0];
 
-  const chapter: {versenumber: number, text: string, booknumber: number, chapternumber: number, notes?: string[]}[] = [];
+  const chapter: {
+    versenumber: number;
+    text: string;
+    booknumber: number;
+    chapternumber: number;
+    notes?: string[];
+  }[] = [];
 
-  verses.forEach(verse => {
-    if (verse.booknumber === book?.booknumber && Number(params?.chapter) === verse.chapternumber) {
-      chapter.push(verse)
+  verses.forEach((verse) => {
+    if (
+      verse.booknumber === book?.booknumber &&
+      Number(params?.chapter) === verse.chapternumber
+    ) {
+      chapter.push(verse);
     }
-  })
+  });
 
-  return { props: { book, chapter } };
+  return { props: { book, chapter, params } };
 };
 
 const Chapter: NextPage<{
@@ -64,24 +82,32 @@ const Chapter: NextPage<{
     chapternumber: number;
     notes?: string[];
   }[];
-}> = ({ book, chapter }) => {
-  const router = useRouter();
-  const [audioContext, setAudioContext] = useContext(AudioContext)
+  params: { book: string; chapter: string };
+}> = ({ book, chapter, params }) => {
+  const setAudioContext = useContext(AudioContext)[1];
 
   return (
     <div>
       <h1>
-        {book.shortname} - {chapter[0]?.chapternumber}
+        {book.shortname} - {params.chapter}
       </h1>
       <button
-      onClick={() => {
-        const audioFiles: string[] = book.chapters.map(chapter => {
-          return `${env.NEXT_PUBLIC_BASE_AUDIO_URL}/${book.shortname.replace(" ", "_")}.${chapter.chapternumber}.mp3`
-        })
-        console.log(audioFiles)
-        setAudioContext({currentTrack: chapter[0]!.chapternumber - 1, tracks: audioFiles})
-      }}
-      >Listen</button>
+        onClick={() => {
+          const audioFiles: string[] = book.chapters.map((chapter) => {
+            return `${env.NEXT_PUBLIC_BASE_AUDIO_URL}/${book.shortname.replace(
+              " ",
+              "_"
+            )}.${chapter.chapternumber}.mp3`;
+          });
+          console.log(audioFiles);
+          setAudioContext({
+            currentTrack: Number(params.chapter) - 1,
+            tracks: audioFiles,
+          });
+        }}
+      >
+        Listen
+      </button>
       <p>
         {chapter.map((verse) => {
           return <span key={verse.versenumber}>{verse.text} </span>;

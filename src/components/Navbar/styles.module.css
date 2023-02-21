@@ -1,0 +1,9 @@
+
+
+.navbar::before {
+  width: 100vw;
+  height: 96px;
+  background-color: black;
+  content: "";
+  position: absolute;
+}

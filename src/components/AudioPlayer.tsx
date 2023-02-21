@@ -31,7 +31,7 @@ const AudioPlayer = () => {
   const speeds = [0.5, 0.75, 1, 1.25, 1.5, 1.6, 1.7, 1.8, 1.9, 2];
 
   useEffect(() => {
-    if (audioRef && audioRef.current) {
+    if (audioRef && audioRef.current && audioContext.tracks.length !== 0) {
       audioRef.current.load();
       audioRef.current.play().catch((e) => {
         console.error(e);

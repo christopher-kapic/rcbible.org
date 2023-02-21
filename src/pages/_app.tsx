@@ -7,6 +7,7 @@ import { api } from "../utils/api";
 import "../styles/globals.css";
 import Head from "next/head";
 import AudioPlayer, { AudioContextProvider } from "../components/AudioPlayer";
+import Navbar from "../components/Navbar";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -102,8 +103,10 @@ const MyApp: AppType<{ session: Session | null }> = ({
       </Head>
       <AudioContextProvider>
         <SessionProvider session={session}>
-          <Component {...pageProps} />
-          <AudioPlayer />
+          <Navbar>
+            <Component {...pageProps} />
+            <AudioPlayer />
+          </Navbar>
         </SessionProvider>
       </AudioContextProvider>
     </>

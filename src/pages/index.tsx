@@ -1,13 +1,9 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import books from '../utils/douay-rheims-json/books.json'
-// import { signIn, signOut, useSession } from "next-auth/react";
 
-// import { api } from "../utils/api";
 
 const Home: NextPage = () => {
-  // const hello = api.example.hello.useQuery({ text: "from tRPC" });
 
   return (
     <>
@@ -16,16 +12,6 @@ const Home: NextPage = () => {
         <meta name="description" content="Online Douay Rheims for Traditional Catholics" />
         <link rel="icon" href="/icon-192x192.png" />
       </Head>
-      {
-        books.map(book => {
-          return (
-            <p key={book.booknumber}>
-            <Link href={`/${book.shortname.toLowerCase().replace(" ", "_")}`}>{book.shortname}</Link>
-            </p>
-          )
-        })
-      }
-      
     </>
   );
 };

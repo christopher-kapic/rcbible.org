@@ -104,8 +104,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <AudioContextProvider>
         <SessionProvider session={session}>
           <Navbar>
-            <Component {...pageProps} />
-            <AudioPlayer />
+            <AudioPlayer>
+              <Component {...pageProps} />
+            </AudioPlayer>
           </Navbar>
         </SessionProvider>
       </AudioContextProvider>

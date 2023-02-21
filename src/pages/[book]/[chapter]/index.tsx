@@ -87,8 +87,8 @@ const Chapter: NextPage<{
   const setAudioContext = useContext(AudioContext)[1];
 
   return (
-    <div>
-      <h1>
+    <div className="p-4 bg-slate-50 text-slate-800">
+      <h1 className="text-2xl">
         {book.shortname} - {params.chapter}
       </h1>
       <button
@@ -108,7 +108,7 @@ const Chapter: NextPage<{
       >
         Listen
       </button>
-      <p>
+      <p className="text-lg">
         {chapter.map((verse) => {
           return <span key={verse.versenumber}>{verse.text} </span>;
         })}

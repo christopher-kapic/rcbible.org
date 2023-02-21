@@ -1,10 +1,4 @@
-import {
-  useState,
-  useRef,
-  useContext,
-  createContext,
-  useEffect,
-} from "react";
+import { useState, useRef, useContext, createContext, useEffect } from "react";
 import {
   BackwardIcon,
   ForwardIcon,
@@ -20,7 +14,11 @@ const buttonStyles = `
   w-6 items-center
 `;
 
-const AudioPlayer = () => {
+const AudioPlayer = ({
+  children,
+}: {
+  children: JSX.Element | JSX.Element[];
+}) => {
   const [audioContext, setAudioContext] = useContext(AudioContext);
   const audioRef = useRef<HTMLAudioElement>(null);
   const seekRef = useRef<HTMLInputElement>(null);
@@ -62,7 +60,10 @@ const AudioPlayer = () => {
         onEnded={() => {
           if (audioContext.currentTrack < audioContext.tracks.length - 1) {
             const currentTrack = audioContext.currentTrack;
-            setAudioContext({...audioContext, currentTrack: currentTrack + 1})
+            setAudioContext({
+              ...audioContext,
+              currentTrack: currentTrack + 1,
+            });
           }
         }}
       >
@@ -73,19 +74,31 @@ const AudioPlayer = () => {
         Your browser does not support the audio element.
       </audio>
       <div
+        style={{
+          paddingBottom:
+            audioContext &&
+            audioContext.tracks &&
+            audioContext.tracks.length > 0
+              ? 96
+              : 0,
+        }}
+      >
+        {children}
+      </div>
+      <div
         className={`
           align-center fixed
           flex
-          w-screen flex-col
+          w-full flex-col
           justify-center
-          bg-gray-800 text-white
+          bg-slate-700 text-slate-100
       `}
         style={{
           bottom:
             audioContext &&
             audioContext.tracks &&
             audioContext.tracks.length > 0
-              ? 0
+              ? 96
               : -72,
           transition: "bottom .25s ease-in-out",
         }}
@@ -196,9 +209,7 @@ const AudioPlayer = () => {
             // disabled={audioContext!.tracks!.length === 0}
             className={`${buttonStyles}`}
             onClick={() => {
-              if (
-                audioContext.currentTrack < audioContext.tracks.length - 1
-              ) {
+              if (audioContext.currentTrack < audioContext.tracks.length - 1) {
                 setAudioContext({
                   ...audioContext,
                   currentTrack:
@@ -246,8 +257,9 @@ type AudioContext = [
 export const AudioContext = createContext<AudioContext>([
   { currentTrack: 0, tracks: [] },
   (input: AudioState) => {
-    if (!input) { // This enforces that input is used for linting purposes
-      return
+    if (!input) {
+      // This enforces that input is used for linting purposes
+      return;
     }
     return;
   },
